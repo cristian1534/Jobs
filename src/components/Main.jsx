@@ -1,7 +1,20 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { db } from "../database/firebase";
+import { AuthContext } from "../auth/auth";
 import Post from "../components/Post";
 
 const Main = () => {
+  const [data, setData] = useState([]);
+  const { currentUser } = useContext(AuthContext);
+  useEffect(() => {
+    const clientsMessages = db.collection("User").onSnapshot((snap) => {
+      const data = snap.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      setData(data);
+      console.log(data);
+    });
+    return () => clientsMessages();
+  }, []);
+
   return (
     <div>
       <main>
@@ -219,104 +232,42 @@ const Main = () => {
               <div className="card social-timeline-card">
                 <div className="card-body">
                   <h5 className="card-title">People you may know</h5>
-                  <ul className="friend-list">
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="left">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                          alt=""
-                        />
-                      </div>
-                      <div className="right">
-                        <h3>John Doe</h3>
-                        <p>10 Friends</p>
-                      </div>
-                    </li>
-                  </ul>
+                  {data.map((user) => (
+                    <ul className="friend-list" key={user.id}>
+                      <li>
+                        <div className="left">
+                          <img src={user.url} alt="" />
+                        </div>
+                        <div className="right">
+                          <h3>{user.name}</h3>
+                          {currentUser && currentUser.email === user.email ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="lightgreen"
+                              class="bi bi-circle-fill"
+                              viewBox="0 0 16 16"
+                            >
+                              <circle cx="8" cy="8" r="8" />
+                            </svg>
+                          ): (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="red"
+                              class="bi bi-circle-fill"
+                              viewBox="0 0 16 16"
+                            >
+                              <circle cx="8" cy="8" r="8" />
+                            </svg>
+                          )}
+                          <p>10 Friends</p>
+                        </div>
+                      </li>
+                    </ul>
+                  ))}
                 </div>
               </div>
             </div>

@@ -17,10 +17,10 @@ const RegisterForm = () => {
   const firebase = useFirebaseApp();
   const history = useHistory();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const imageRef = ref(storage, "image");
+    const imageRef = ref(storage, image.name);
     uploadBytes(imageRef, image)
       .then(() => {
         getDownloadURL(imageRef)
@@ -30,19 +30,18 @@ const RegisterForm = () => {
               .auth()
               .createUserWithEmailAndPassword(email, password)
               .then(() => {
+                db.collection("User").add({
+                  name,
+                  email,
+                  url,
+                });
+
                 const user = firebase.auth().currentUser;
                 user?.updateProfile({
                   displayName: name,
                   photoURL: url,
                 });
               });
-
-            db.collection("User").add({
-              name,
-              email,
-              url,
-            });
-            console.log(url);
           })
           .catch((error) => {
             console.log(error.message, "error getting the image url");
@@ -52,7 +51,6 @@ const RegisterForm = () => {
       .catch((error) => {
         console.log(error.message);
       });
-
     form.reset();
     history.push("/login");
   };
